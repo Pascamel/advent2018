@@ -1,4 +1,5 @@
 import pathlib 
+import re
 from datetime import date, time, timedelta
 
 input = [x for x in pathlib.Path('./advent4.input').read_text().splitlines()]
@@ -13,10 +14,12 @@ def prepare_records(input):
   sleep_start = None
   records = []
 
-  for s in input:
-    timestamp, action = s.replace('[', '').split('] ')
-    # print('action', action)
-    if action.endswith('begins shift'):
+  pattern_guard = re.compile(r"^\[(\d+)-(\d+)-(\d+)\s+(\d+):\d+\]\sGuard\s#(\S+)")
+  pattern_note  = re.compile(r"^\[\d+-\d+-\d+\s+\d+:(\d+)\] (.+)$")
+
+  for s in input:    
+    if s.endswith('begins shift'):
+      data = pattern_guard.match(s)
 
       if current_guard:
         records.append({
@@ -26,20 +29,19 @@ def prepare_records(input):
         })
 
       current_schedule = '.' * 60
-      current_guard = int(action[action.index('#')+1:action.index(' ', action.index('#'))])
+      current_guard = int(data.group(5))
+      current_date = date(int(data.group(1)), int(data.group(2)), int(data.group(3)))
 
-      dt, tm = timestamp.split(' ')
-      y, m, d = [int(s) for s in dt.split('-')]
-      
-      current_date = date(y, m, d)
-      if int(tm.split(':')[0]) == 23:
+      if int(data.group(4)) == 23:
         current_date += timedelta(days=1)
 
-    elif action == 'falls asleep':
-      sleep_start = int(timestamp.split(':')[1])
+    elif s.endswith('falls asleep'):
+      data = pattern_note.match(s)
+      sleep_start = int(data.group(1))
 
-    elif action == 'wakes up':
-      sleep_ends = int(timestamp.split(':')[1])
+    elif s.endswith('wakes up'):
+      data = pattern_note.match(s)
+      sleep_ends = int(data.group(1))
       current_schedule = current_schedule[0:sleep_start] + '#' * ( sleep_ends - sleep_start) + current_schedule[sleep_ends:]
 
   records.append({
