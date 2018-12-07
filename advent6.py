@@ -108,6 +108,22 @@ def display_grid(grid):
 file = prepare_data()
 grid = fill_grid(prepare_grid(file))
 surface = biggest_surface(grid)
-
 # display_grid(grid)
 print('biggest surface', surface)
+
+def region_sum(max):
+  count, result = 0, [['.' for y in range(len(grid))] for x in range(len(grid))]
+
+  for row, line_result in enumerate(result):
+    for line, case in enumerate(line_result):
+      sum = 0
+      for p in file:
+        sum += (abs(row-p[1]) + abs(line-p[0]))
+
+      if sum < max:
+        result[row][line] = '00'
+        count += 1
+
+  return count
+
+print('region size step 2', region_sum(10000))
