@@ -37,16 +37,24 @@ def sum_pot_number(days, time):
   return sum(index)
 
 
+def step2(delay):
+  # we search for a pattern in the evolution of the result
+  step2start, diff, count, previous_solution = 20, 0, 1, 0
+  while count < 100:
+    days = evolution(data['input'], data['rules'], step2start)
+    solution = sum_pot_number(days, step2start)
+    if solution - previous_solution == diff:
+      count+=1
+    else:
+      diff = solution - previous_solution
+      count=1
+    previous_solution = solution
+    step2start += 1
+
+  return solution + (delay - step2start + 1) * diff
+
+
 data = prepare_data()
-
-step1days = 20
-days = evolution(data['input'], data['rules'], step1days)
-print('step1', sum_pot_number(days, step1days))
-
-step2days = (1000, 2000, 3000, 4000, 5000)
-for d in step2days:
-  days = evolution(data['input'], data['rules'], d)
-  solution = sum_pot_number(days, d)
-  print('step2 for', d, solution, solution / d)
-
-print('fumbling towards solution using a super complex algorithm', 80 * 50000000000)
+days = evolution(data['input'], data['rules'], 20)
+print('step1', sum_pot_number(days, 20))
+print('step2', step2(50000000000))
