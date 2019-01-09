@@ -132,6 +132,29 @@ class Grid:
 
             self.carts[current_cart].move(self.grid)
 
+    def highlander_cart(self):
+        while len([i for i in self.carts if not i.crashed]) > 1:
+            self.carts.sort(key=lambda c: (c.row, c.column))
+            for i, cart in enumerate(self.carts):
+                if cart.crashed:
+                    continue
+
+                cart.move(self.grid)
+
+                for j, comp in enumerate(self.carts):
+                    if i != j and cart.column == comp.column and cart.row == comp.row and not comp.crashed:
+                        cart.crashed = True
+                        comp.crashed = True
+                        break
+
+                if cart.crashed:
+                    continue
+
+        cart = self.carts[0]
+        print('step2', cart.column, cart.row)
+
 
 grid = Grid('day13.input')
 grid.next_crash()
+grid = Grid('day13.input')
+grid.highlander_cart()
